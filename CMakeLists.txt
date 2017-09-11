@@ -57,6 +57,7 @@ install(FILES ${headers} DESTINATION include/${NAME})
 install(FILES ${libgarble} DESTINATION include/${NAME}/garble)
 install(FILES ${circuit-files} DESTINATION include/${NAME}/files)
 install(TARGETS ${NAME} DESTINATION lib)
+install(TARGETS ${NAME}_static DESTINATION lib)
 
 macro (add_test _name)
 	add_executable(${_name} "test/${_name}.cpp" ${sources})
