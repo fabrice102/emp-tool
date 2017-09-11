@@ -50,6 +50,7 @@ set(sources
 gc/backend.cpp
 )
 add_library(${NAME} SHARED ${sources})
+add_library(${NAME}_static STATIC ${sources})
 
 install(FILES emp-tool-config.cmake relic-config.cmake DESTINATION cmake/)
 install(FILES ${headers} DESTINATION include/${NAME})
