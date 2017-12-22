@@ -19,6 +19,8 @@
 PRG is implemented as AES-NI in the CTR mode. Usage is presented as the following code sample.
 
 ```cpp
+#include<emp-tool/emp-tool.h>
+using namespace emp;
 PRG prg;//using a secure random seed
 
 int rand_int, rand_ints[100];

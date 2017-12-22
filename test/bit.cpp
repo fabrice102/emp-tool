@@ -1,7 +1,7 @@
-#include "plain/plain_env.h"
-#include "bit.h"
+#include "emp-tool/emp-tool.h"
 #include <iostream>
 using namespace std;
+using namespace emp;
 
 void test_bit() {
 	bool b[] = {true, false};
@@ -59,7 +59,7 @@ void test_bit() {
 }
 
 int main(int argc, char** argv) {
-	setup_plain_env(false, "cfile");
+	setup_plain_prot(false, "");
 	test_bit();
-	finalize_plain_env();
+	finalize_plain_prot();
 }

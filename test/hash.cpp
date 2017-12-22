@@ -1,7 +1,7 @@
-#include "hash.h"
-#include "utils.h"
+#include "emp-tool/emp-tool.h"
 #include <iostream>
 using namespace std;
+using namespace emp;
 
 int main() {
 	Hash hash;

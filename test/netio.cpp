@@ -1,7 +1,7 @@
-#include "net_io_channel.h"
-#include "utils/utils.h"
+#include "emp-tool/emp-tool.h"
 #include <iostream>
 using namespace std;
+using namespace emp;
 
 int main(int argc, char** argv) {
 	int port, party;

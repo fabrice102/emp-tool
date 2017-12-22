@@ -2,12 +2,11 @@ cmake_minimum_required (VERSION 2.8.11)
 project (emptool)
 set(NAME "emp-tool")
 
-include_directories(${CMAKE_SOURCE_DIR}/)
-include_directories(${CMAKE_SOURCE_DIR}/io)
-include_directories(${CMAKE_SOURCE_DIR}/utils)
-include_directories(${CMAKE_SOURCE_DIR}/circuits)
-include_directories(${CMAKE_SOURCE_DIR}/gc)
-include_directories(${CMAKE_SOURCE_DIR}/plain)
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW) # use rpath on macOS
+endif()
+
+include_directories(${CMAKE_SOURCE_DIR})
 
 if(NOT CMAKE_BUILD_TYPE)
 set(CMAKE_BUILD_TYPE Release)
@@ -15,53 +14,44 @@ endif(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin )
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR})
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
-find_package(OpenSSL)
-find_package(relic)
-INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+find_package(OpenSSL REQUIRED)
+find_package(relic REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+include_directories(${RELIC_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 
-set (CMAKE_C_FLAGS "-pthread -Wall -march=native -O1 -maes")
+set (CMAKE_C_FLAGS "-pthread -Wall -march=native -O3 -maes -mrdseed")
 set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
-
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 
-
-file(GLOB headers 
-"io/*.h"
-"circuits/*.h"
-"circuits/*.hpp"
-"utils/*.h"
-"utils/*.hpp"
-"gc/*.h"
-"gc/*.hpp"
-"emp-tool"
-)
-file(GLOB circuit-files 
-"circuits/files/*"
-)
-
-file(GLOB libgarble
-"garble/*.h"
-)
+OPTION(USE_RANDOM_DEVICE "Option description" OFF)
+IF(USE_RANDOM_DEVICE)
+	ADD_DEFINITIONS(-DEMP_USE_RANDOM_DEVICE)
+	message("Use Random Device: on")
+ENDIF(USE_RANDOM_DEVICE)
+OPTION(THREADING "Option description" OFF)
+IF(THREADING)
+	ADD_DEFINITIONS(-DTHREADING)
+	message("Multi Threading: on")
+ENDIF(THREADING)
 
 set(sources
-gc/backend.cpp
+emp-tool/emp-tool.cpp
 )
+
 add_library(${NAME} SHARED ${sources})
 add_library(${NAME}_static STATIC ${sources})
 
-install(FILES emp-tool-config.cmake relic-config.cmake DESTINATION cmake/)
-install(FILES ${headers} DESTINATION include/${NAME})
-install(FILES ${libgarble} DESTINATION include/${NAME}/garble)
-install(FILES ${circuit-files} DESTINATION include/${NAME}/files)
+install(FILES cmake/emp-tool-config.cmake cmake/relic-config.cmake DESTINATION cmake/)
+install(DIRECTORY emp-tool DESTINATION include/)
 install(TARGETS ${NAME} DESTINATION lib)
 install(TARGETS ${NAME}_static DESTINATION lib)
 
 macro (add_test _name)
 	add_executable(${_name} "test/${_name}.cpp" ${sources})
-	target_link_libraries(${_name}  ${RELIC_LIBRARIES} ${OPENSSL_LIBRARIES} gmp) 
+	target_link_libraries(${_name}  ${RELIC_LIBRARIES} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} gmp) 
 endmacro()
 
 add_test(prg)
@@ -73,4 +63,4 @@ add_test(bit)
 add_test(int)
 add_test(float)
 add_test(garble)
-#add_test(gen_circuit)
+add_test(gen_circuit)
